@@ -1,7 +1,6 @@
 use regex::Regex;
 use std::fs::File;
 use std::io::*;
-use std::ops::*;
 
 #[derive(Debug, PartialEq)]
 enum Iota {
@@ -12,15 +11,13 @@ enum Iota {
     Verbatim(String),
 }
 
-fn main() -> Result<()> {
-    let date_re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
-    let f = File::open("input.insom")?;
-    let r = BufReader::new(f);
+fn parse_insom_file(br: BufReader<File>) -> Vec<Iota> {
     let mut in_verbatim = false;
+    let date_re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
 
-    let mut x: Vec<Iota> = r
+    let first_pass: Vec<Iota> = br
         .lines()
-        .map(|fie| match fie.unwrap() {
+        .map(|line| match line.unwrap() {
             x if date_re.is_match(x.as_str()) => (Iota::Header(x)),
             x if x == "----------" => (Iota::Blank),
             x if x == "```" => {
@@ -33,21 +30,32 @@ fn main() -> Result<()> {
         })
         .collect();
 
-    let mut op: Vec<Iota> = Vec::new();
+    let mut output: Vec<Iota> = Vec::new();
     let mut in_verb = false;
     let mut buf = String::new();
-    for l in x {
-        match l {
-            Iota::Verbata(q) => { in_verb = true; buf = buf + &q + "\n"; },
-            _ if in_verb => { in_verb = false; op.push(Iota::Verbatim(buf.to_string())); buf = String::new(); op.push(l) },
-            _ => { op.push(l) },
+    for iota_ in first_pass {
+        match iota_ {
+            Iota::Verbata(q) => {
+                in_verb = true;
+                buf = buf + &q + "\n";
+            }
+            _ if in_verb => {
+                in_verb = false;
+                output.push(Iota::Verbatim(buf.to_string()));
+                buf = String::new();
+                output.push(iota_)
+            }
+            _ => output.push(iota_),
         }
     }
-    op = op.into_iter().filter(|r| *r != Iota::Blank).collect();
+    output.into_iter().filter(|r| *r != Iota::Blank).collect()
+}
 
-    println!("{:?}", op);
+fn main() {
+    let f = File::open("input.insom").unwrap();
+    let br = BufReader::new(f);
 
-    Ok(())
+    println!("{:?}", parse_insom_file(br));
 }
 
 // let v = textwrap::wrap(&fie, 10);
