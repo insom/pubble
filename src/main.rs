@@ -51,11 +51,22 @@ fn parse_insom_file(br: BufReader<File>) -> Vec<Iota> {
     output.into_iter().filter(|r| *r != Iota::Blank).collect()
 }
 
+fn render_to_html(fmt: &mut dyn Write, doc: Vec<Iota>) -> Result<()> {
+    for iota_ in doc {
+        write!(fmt, "boop {:?}", iota_)?;
+    }
+    Ok(())
+}
+
 fn main() {
     let f = File::open("input.insom").unwrap();
     let br = BufReader::new(f);
 
-    println!("{:?}", parse_insom_file(br));
+    let v = parse_insom_file(br);
+    println!("{:?}", v);
+    let mut q = Vec::new();
+    render_to_html(&mut q, v).unwrap();
+    println!("D {:?}", String::from_utf8(q));
 }
 
 // let v = textwrap::wrap(&fie, 10);
