@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    word_wrap (1.0.0)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  word_wrap (~> 1.0)
+
+BUNDLED WITH
+   2.3.7
