@@ -1,12 +1,12 @@
 #!/usr/bin/ruby
 
-class Doc
-  attr_reader :pieces
+require 'word_wrap'
+require 'word_wrap/core_ext'
 
+class Doc
   def initialize(filename)
     @filename = filename
     @file = File::open(@filename)
-    @pieces = []
     @dateline = nil
   end
 
@@ -14,6 +14,7 @@ class Doc
     code_language = nil
     code_buffer = nil
     state = :normal
+    pieces = []
     for line in @file.readlines do
       if state == :normal
         # Date Line
@@ -68,7 +69,30 @@ class Doc
     end
     pieces
   end
+
+  def pieces
+    @pieces ||= parse
+  end
+end
+
+def indent(s, prefix="  ")
+  s.split("\n").map { |x| prefix + x }.join("\n")
+end
+
+# dateline code url image heading
+
+def gopherize(doc)
+  doc.pieces.map do |piece|
+    if piece[0] == :dateline
+      next indent(piece[1].fit(60))
+    end
+    if piece[0] == :paragraph
+      next indent(piece[1].fit(60))
+    end
+  end.join("\n")
 end
 
 p = Doc.new("input.insom")
-p p.parse
+p p.pieces
+puts gopherize(p)
+
