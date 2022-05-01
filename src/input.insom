@@ -1,15 +1,18 @@
 2020-20-20
 ----------
 
-Dulce et decorum est pro patria mori
+Dulce et decorum est pro patria mori.
 
-
+## Heading is Here
 
 A second paragraph
 
 And a third
 
 http://insom.me.uk/hyperlink
+
+LINK http://insom.me.uk/hyperlink The text of a hyperlink
+IMG http://insom.me.uk/hyperlink The alt of an image
 
 ```
 Some verbatim text. F   or sommeee ras asd asd asd asdasd asdasd
@@ -18,3 +21,11 @@ asdf
 zxcvb
 END TRANSMISSION
 ```
+
+```ruby
+def ruby(ruby)
+    ruby
+end
+```
+
+This is something
