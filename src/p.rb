@@ -75,21 +75,38 @@ class Doc
   end
 end
 
-def indent(s, prefix="  ")
+def indent(s, prefix="   ")
   s.split("\n").map { |x| prefix + x }.join("\n")
 end
 
-# dateline code url image heading
+# dateline paragraph code url image heading
 
 def gopherize(doc)
-  doc.pieces.map do |piece|
+  res = doc.pieces.map do |piece|
     if piece[0] == :dateline
-      next indent(piece[1].fit(60))
+      next indent(piece[1].fit(60)) + "\n   ----------"
     end
     if piece[0] == :paragraph
       next indent(piece[1].fit(60))
     end
-  end.join("\n")
+    if piece[0] == :code
+      next indent(piece[1], '|   ')
+    end
+    if piece[0] == :url
+      res = indent(piece[1], '=> ')
+      res += "\n" + indent(piece[2].fit(60), ' > ') unless piece[2].nil?
+      next res
+    end
+    if piece[0] == :image
+      res = indent(piece[1], '=> ')
+      res += "\n" + indent(piece[2].fit(60), ' > ') unless piece[2].nil?
+      next res
+    end
+    if piece[0] == :heading
+      next indent(piece[1].fit(60), '## ')
+    end
+  end.join("\n\n")
+  return "\n" + res + "\n\n"
 end
 
 p = Doc.new("input.insom")
