@@ -109,7 +109,35 @@ def gopherize(doc)
   return "\n" + res + "\n\n"
 end
 
+def geminize(doc)
+  res = doc.pieces.map do |piece|
+    if piece[0] == :dateline
+      next indent(piece[1], '# ')
+    end
+    if piece[0] == :paragraph
+      next piece[1]
+    end
+    if piece[0] == :code
+      next "```#{ piece[2] }\n#{ piece[1] }```"
+    end
+    if piece[0] == :url
+      res = indent(piece[1], '=> ')
+      res += " " + piece[2]  unless piece[2].nil?
+      next res
+    end
+    if piece[0] == :image
+      res = indent(piece[1], '=> ')
+      res += " " + piece[2]  unless piece[2].nil?
+      next res
+    end
+    if piece[0] == :heading
+      next indent(piece[1], '## ')
+    end
+  end.join("\n\n")
+  return res
+end
+
 p = Doc.new("input.insom")
 p p.pieces
-puts gopherize(p)
+puts geminize(p)
 
