@@ -189,4 +189,13 @@ projects.map do |p|
 end
 File::open(File::expand_path("~/public_gopher/gophermap"), "w").write(gopher_index(projects))
 
+projects.map do |p|
+  File::open(File::expand_path("~/.ttbp/entries/#{ p.dateline.gsub("-", "") }.txt"), "w").write(gopherize(p))
+end
+
 File::open(File::expand_path("~/.project"), "w").write(gopherize(projects[0]))
+
+f = File::open(File::expand_path("~/public_html/index.html"), "w")
+f.write(File::open(File::expand_path("~/public_html/01_top.html")).read)
+f.write(gopherize(projects[0]))
+f.write(File::open(File::expand_path("~/public_html/02_bottom.html")).read)
