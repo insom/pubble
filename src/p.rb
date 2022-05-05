@@ -4,6 +4,7 @@ require 'word_wrap'
 require 'word_wrap/core_ext'
 
 class Doc
+
   def initialize(filename)
     @filename = filename
     @file = File::open(@filename)
@@ -73,6 +74,15 @@ class Doc
   def pieces
     @pieces ||= parse
   end
+
+  def dateline
+    pieces
+    @dateline
+  end
+
+  def <=>(other)
+    other.dateline <=> dateline
+  end
 end
 
 def indent(s, prefix="   ")
@@ -137,7 +147,46 @@ def geminize(doc)
   return res
 end
 
-p = Doc.new("input.insom")
-p p.pieces
-puts geminize(p)
+def gemini_index(ps)
+  begin
+    header = File::open("header.gmi").read
+  rescue
+    header = ""
+  end
+  header + ps.map(&:dateline).map do |dl|
+    "=> #{ dl }.gmi #{ dl }"
+  end.join("\n") + "\n"
+end
 
+def gopher_index(ps)
+  begin
+    header = File::open("header.gophermap").read
+  rescue
+    header = ""
+  end
+  header + ps.map(&:dateline).map do |dl|
+    "0#{ dl }\t#{ dl }"
+  end.join("\n") + "\n"
+end
+
+# main, kindof
+
+projects = []
+
+Dir::glob(File::expand_path("~/projects/*")) do |fn|
+  projects << Doc.new(fn)
+end
+
+projects.sort!
+
+projects.map do |p|
+  File::open(File::expand_path("~/public_gemini/#{ p.dateline }.gmi"), "w").write(geminize(p))
+end
+File::open(File::expand_path("~/public_gemini/index.gmi"), "w").write(gemini_index(projects))
+
+projects.map do |p|
+  File::open(File::expand_path("~/public_gopher/#{ p.dateline }"), "w").write(gopherize(p))
+end
+File::open(File::expand_path("~/public_gopher/gophermap"), "w").write(gopher_index(projects))
+
+File::open(File::expand_path("~/.project"), "w").write(gopherize(projects[0]))
